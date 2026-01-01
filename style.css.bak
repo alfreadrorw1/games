@@ -1728,14 +1728,10 @@ body {
     margin-bottom: 40px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
     .footer-content {
         grid-template-columns: 1fr;
         gap: 40px;
-    }
-    
-    .developer-info {
-        grid-column: 1 / -1;
     }
 }
 

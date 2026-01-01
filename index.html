@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game AlfreadRorw</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-shield"></i> Admin Login</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="adminKey">
+                            <i class="fas fa-key"></i> Admin Access Code
+                        </label>
+                        <input type="password" id="adminKey" placeholder="Enter admin access code" required>
+                        <div class="password-toggle" id="keyToggle">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-login">
+                            <i class="fas fa-sign-in-alt"></i> Login as Admin
+                        </button>
+                        <button type="button" class="btn-cancel close-modal">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                    
+                    <div class="login-note">
+                        <h4><i class="fas fa-info-circle"></i> Information:</h4>
+                        <p>Access Code: <code class="admin-code"></code></p>
+                        <p class="note">
+                            <i class="fas fa-shield-alt"></i> Only admins can add/delete games. Regular users can only view and play games.
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Details Modal -->
+    <div id="gameDetailsModal" class="modal game-details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-info-circle"></i> Game Details</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="gameDetailsContent">
+                    <!-- Game details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="confirmDeleteModal" class="modal confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this game?</p>
+                <div class="game-to-delete" id="gameToDeleteInfo"></div>
+                <div class="modal-actions">
+                    <button id="confirmDeleteBtn" class="btn-danger">
+                        <i class="fas fa-trash"></i> Delete Game
+                    </button>
+                    <button class="btn-cancel close-modal">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <div class="icon-inner">
+                        <span>🎮</span>
+                        <div class="icon-glow"></div>
+                    </div>
+                    <div class="icon-pulse"></div>
+                </div>
+                <div class="logo-text">
+                    <h1>Alfread Games</h1>
+                    <p class="tagline">Real-time Gaming Platform</p>
+                </div>
+            </div>
+            
+            <!-- Live Stats -->
+            <div class="live-stats">
+                <div class="stats-container">
+                    <div class="stat-card online">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                            <div class="online-dot"></div>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="onlineCount">0</span>
+                            <span class="stat-label">Users Online</span>
+                        </div>
+                        <div class="stat-trend">
+                            <i class="fas fa-signal"></i>
+                            <span>Live</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card games">
+                        <div class="stat-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="gameCount">0</span>
+                            <span class="stat-label">Total Games</span>
+                        </div>
+                        <div class="stat-trend">
+                            <i class="fas fa-fire"></i>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card admins">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="adminCount">0</span>
+                            <span class="stat-label">Admins Online</span>
+                        </div>
+                        <div class="stat-trend">
+                            <i class="fas fa-crown"></i>
+                            <span>Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <div id="adminStatus" class="admin-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">
+                        <i class="fas fa-user"></i> Guest Mode
+                    </span>
+                </div>
+                <button id="loginBtn" class="btn-admin">
+                    <i class="fas fa-user-shield"></i> Admin Login
+                </button>
+                <button id="logoutBtn" class="btn-admin" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> Logout Admin
+                </button>
+            </div>
+        </header>
+
+        <!-- Admin Panel -->
+        <section id="adminPanel" class="admin-panel" style="display: none;">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <div class="title-with-badge">
+                        <h2><i class="fas fa-crown"></i> Admin Control Panel</h2>
+                        <span class="admin-badge">Active</span>
+                    </div>
+                    <p class="panel-subtitle">Manage games and monitor platform activity</p>
+                </div>
+                <div class="panel-stats">
+                    <div class="panel-stat">
+                        <i class="fas fa-eye"></i>
+                        <span><span id="viewsCount">0</span> Today Views</span>
+                    </div>
+                    <div class="panel-stat">
+                        <i class="fas fa-clock"></i>
+                        <span>Last Update: <span id="lastUpdateTime">Just now</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="quick-action" id="refreshGames">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Refresh Games</span>
+                </button>
+                <button class="quick-action" id="viewAnalytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>View Analytics</span>
+                </button>
+                <button class="quick-action" id="exportGames">
+                    <i class="fas fa-download"></i>
+                    <span>Export List</span>
+                </button>
+            </div>
+            
+            <!-- Add Game Form -->
+            <div class="panel-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-plus-circle"></i> Add New Game</h3>
+                    <div class="section-indicator">
+                        <div class="indicator-dot"></div>
+                        <span>Ready</span>
+                    </div>
+                </div>
+                
+                <form id="addGameForm" class="add-game-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gameName">
+                                <i class="fas fa-gamepad"></i> Game Name
+                            </label>
+                            <input type="text" id="gameName" placeholder="Example: Epic Battle Arena" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameIcon">
+                                <i class="fas fa-icons"></i> Game Icon
+                            </label>
+                            <div class="icon-selector">
+                                <select id="gameIcon" required>
+                                    <option value="">-- Select Icon --</option>
+                                    <option value="🎮">🎮 General Game</option>
+                                    <option value="⚔️">⚔️ Battle Game</option>
+                                    <option value="👥">👥 Multiplayer</option>
+                                    <option value="🏆">🏆 Tournament</option>
+                                    <option value="🧩">🧩 Puzzle</option>
+                                    <option value="🚀">🚀 Adventure</option>
+                                    <option value="🎯">🎯 Target Game</option>
+                                    <option value="🏎️">🏎️ Racing Game</option>
+                                    <option value="🎲">🎲 Board Game</option>
+                                    <option value="🃏">🃏 Card Game</option>
+                                    <option value="🎪">🎪 Arcade</option>
+                                </select>
+                                <div class="icon-preview" id="iconPreview">🎮</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gameDescription">
+                            <i class="fas fa-align-left"></i> Game Description
+                        </label>
+                        <textarea id="gameDescription" rows="3" placeholder="Brief description about the game..." required></textarea>
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/500 characters
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gameLink">
+                                <i class="fas fa-link"></i> Game URL
+                            </label>
+                            <input type="url" id="gameLink" placeholder="https://example.com/game" required>
+                            <div class="url-preview" id="urlPreview"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameCategory">
+                                <i class="fas fa-tags"></i> Category
+                            </label>
+                            <select id="gameCategory">
+                                <option value="action">Action</option>
+                                <option value="adventure">Adventure</option>
+                                <option value="puzzle">Puzzle</option>
+                                <option value="racing">Racing</option>
+                                <option value="sports">Sports</option>
+                                <option value="strategy">Strategy</option>
+                                <option value="arcade">Arcade</option>
+                                <option value="multiplayer">Multiplayer</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-add">
+                            <i class="fas fa-plus-circle"></i> Add Game
+                        </button>
+                        <button type="button" id="clearFormBtn" class="btn-clear">
+                            <i class="fas fa-broom"></i> Clear Form
+                        </button>
+                        <button type="button" id="previewGameBtn" class="btn-preview">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="panel-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                    <div class="section-indicator">
+                        <div class="pulse"></div>
+                        <span>Live</span>
+                    </div>
+                </div>
+                <div class="activity-feed" id="activityFeed">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <p>Welcome to Admin Panel! Your activities will appear here.</p>
+                            <span class="activity-time">Just now</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Games Filter -->
+            <div class="games-filter">
+                <div class="filter-header">
+                    <h2><i class="fas fa-gamepad"></i> Available Games</h2>
+                    <div class="filter-controls">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="gameSearch" placeholder="Search games...">
+                        </div>
+                        <select id="categoryFilter" class="category-filter">
+                            <option value="">All Categories</option>
+                            <option value="action">Action</option>
+                            <option value="adventure">Adventure</option>
+                            <option value="puzzle">Puzzle</option>
+                            <option value="racing">Racing</option>
+                            <option value="sports">Sports</option>
+                            <option value="strategy">Strategy</option>
+                            <option value="arcade">Arcade</option>
+                            <option value="multiplayer">Multiplayer</option>
+                        </select>
+                        <button id="sortGames" class="btn-sort">
+                            <i class="fas fa-sort-amount-down"></i> Sort
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="games-stats">
+                    <div class="stat-chip">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Total: <strong id="totalGames">0</strong> games</span>
+                    </div>
+                    <div class="stat-chip">
+                        <i class="fas fa-clock"></i>
+                        <span>Updated: <strong id="lastUpdated">Just now</strong></span>
+                    </div>
+                    <div class="stat-chip">
+                        <i class="fas fa-bolt"></i>
+                        <span>Live Updates: <strong>Active</strong></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Game Cards Container -->
+            <div id="gamesContainer" class="games-grid">
+                <!-- Games will be loaded here -->
+                <div class="loading-container">
+                    <div class="spinner">
+                        <div class="spinner-inner"></div>
+                        <div class="spinner-outer"></div>
+                    </div>
+                    <h3>Loading Games</h3>
+                    <p>Fetching games from database...</p>
+                    <p class="loading-sub">Firebase Realtime Connection</p>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <div class="empty-icon-inner">
+                        <div class="empty-icon-bg">🎮</div>
+                        <div class="empty-icon-glow"></div>
+                    </div>
+                </div>
+                <h3>No Games Available</h3>
+                <p>No games have been added yet. Please login as admin to add the first game.</p>
+                <div class="empty-actions">
+                    <button id="demoGameBtn" class="btn-demo">
+                        <i class="fas fa-magic"></i> Add Demo Game
+                    </button>
+                    <button id="refreshListBtn" class="btn-refresh">
+                        <i class="fas fa-sync-alt"></i> Refresh List
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Load More -->
+            <div class="load-more" id="loadMore" style="display: none;">
+                <button id="loadMoreBtn" class="btn-load-more">
+                    <i class="fas fa-plus"></i> Load More Games
+                </button>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-main">
+                    <div class="footer-logo">
+                        <div class="footer-logo-icon">
+                            <span>🎮</span>
+                            <div class="logo-glow"></div>
+                        </div>
+                        <div class="footer-logo-text">
+                            <h3>Game Center</h3>
+                            <p>Real-time Gaming Platform</p>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-stats">
+                        <div class="footer-stat">
+                            <div class="stat-indicator online"></div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="footerOnlineCount">0</span>
+                                <span class="stat-label">Users Online</span>
+                            </div>
+                        </div>
+                        <div class="footer-stat">
+                            <div class="stat-indicator games"></div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="footerGameCount">0</span>
+                                <span class="stat-label">Total Games</span>
+                            </div>
+                        </div>
+                        <div class="footer-stat">
+                            <div class="stat-indicator admins"></div>
+                            <div class="stat-content">
+                                <span class="stat-number" id="footerAdminCount">0</span>
+                                <span class="stat-label">Admins</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-tech">
+                    <div class="tech-stack">
+                        <h4><i class="fas fa-code"></i> Tech Stack</h4>
+                        <div class="tech-items">
+                            <div class="tech-item">
+                                <i class="fab fa-js-square"></i>
+                                <span>JavaScript</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-fire"></i>
+                                <span>Firebase</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-database"></i>
+                                <span>Firestore</span>
+                            </div>
+                            <div class="tech-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Auth</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="connection-status">
+                        <h4><i class="fas fa-wifi"></i> Connection</h4>
+                        <div class="status-indicator">
+                            <div class="status-dot" id="connectionDot"></div>
+                            <span id="connectionStatus">Connecting...</span>
+                        </div>
+                        <div class="latency" id="latency">Ping: -- ms</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="copyright">
+                    <p>&copy; 2026 Alfread Games Platform. All games added by administrators.</p>
+                    <p class="version">v1.0.0 | Real-time Gaming Experience</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link" id="privacyLink">
+                        <i class="fas fa-user-shield"></i> Privacy
+                    </a>
+                    <a href="#" class="footer-link" id="termsLink">
+                        <i class="fas fa-file-contract"></i> Terms
+                    </a>
+                    <a href="#" class="footer-link" id="contactLink">
+                        <i class="fas fa-envelope"></i> Contact
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button id="scrollToTop" class="fab">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

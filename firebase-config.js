@@ -16,7 +16,10 @@ const firebaseConfig = {
 
 // Initialize Firebase
 try {
-    firebase.initializeApp(firebaseConfig);
+    // Check if Firebase is already initialized
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     console.log("🔥 Firebase app initialized");
 } catch (error) {
     console.error("❌ Firebase initialization error:", error);

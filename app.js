@@ -504,11 +504,12 @@ function renderGames() {
     }
 }
 
-// Create Game Card
+// Create Game Card - FIXED VERSION
 function createGameCard(game) {
     const gameCard = document.createElement('div');
     gameCard.className = 'game-card';
     gameCard.dataset.id = game.id;
+    gameCard.dataset.admin = isAdmin.toString(); // Tambahkan data atribut untuk status admin
     
     // Format timestamp
     let timeAgo = 'Just now';
@@ -527,8 +528,9 @@ function createGameCard(game) {
         });
     }
     
+    // Buat game card dengan tombol admin yang selalu ada tapi bisa diatur visibility-nya
     gameCard.innerHTML = `
-        ${game.category ? `<span class="game-category">${game.category}</span>` : ''}
+        ${game.category ? `<span class="game-category ${game.category}">${game.category}</span>` : ''}
         <div class="game-header">
             <div class="game-icon">${game.iconGame || '🎮'}</div>
             <h3 class="game-title">${game.namaGame}</h3>
@@ -540,8 +542,7 @@ function createGameCard(game) {
                 <i class="fas fa-external-link-alt"></i>
             </button>
         </a>
-        ${isAdmin ? `
-        <div class="game-actions">
+        <div class="game-actions" id="admin-actions-${game.id}">
             <button class="btn-action info" onclick="viewGameDetails('${game.id}')">
                 <i class="fas fa-info-circle"></i> Details
             </button>
@@ -552,7 +553,6 @@ function createGameCard(game) {
                 <i class="fas fa-trash"></i> Delete
             </button>
         </div>
-        ` : ''}
         <div class="game-meta">
             <span title="${exactDate}">
                 <i class="far fa-clock"></i> ${timeAgo}
@@ -562,6 +562,18 @@ function createGameCard(game) {
             </span>
         </div>
     `;
+    
+    // Atur visibility tombol admin berdasarkan status
+    const actionsDiv = gameCard.querySelector('.game-actions');
+    if (actionsDiv) {
+        if (isAdmin) {
+            actionsDiv.style.display = 'flex';
+            actionsDiv.style.opacity = '1';
+            actionsDiv.style.transform = 'translateY(0)';
+        } else {
+            actionsDiv.style.display = 'none';
+        }
+    }
     
     return gameCard;
 }
@@ -613,6 +625,9 @@ async function handleAdminLogin(e) {
             updateUIForAdmin();
             updateAdminOnlineStatus(true);
             
+            // Refresh tombol admin di semua game cards
+            refreshAdminButtons();
+            
             addActivity('Logged in as Admin', 'success');
             showNotification('Successfully logged in as Admin!', 'success');
             
@@ -641,8 +656,31 @@ function handleLogout() {
     updateUIForGuest();
     updateAdminOnlineStatus(false);
     
+    // Refresh tombol admin di semua game cards
+    refreshAdminButtons();
+    
     addActivity('Logged out from Admin mode', 'info');
     showNotification('Logged out from Admin mode', 'info');
+}
+
+// Refresh admin buttons on all game cards
+function refreshAdminButtons() {
+    const gameCards = document.querySelectorAll('.game-card');
+    gameCards.forEach(card => {
+        const actionsDiv = card.querySelector('.game-actions');
+        if (actionsDiv) {
+            if (isAdmin) {
+                actionsDiv.style.display = 'flex';
+                // Tambahkan animasi untuk transisi yang smooth
+                setTimeout(() => {
+                    actionsDiv.style.opacity = '1';
+                    actionsDiv.style.transform = 'translateY(0)';
+                }, 10);
+            } else {
+                actionsDiv.style.display = 'none';
+            }
+        }
+    });
 }
 
 // Handle Add Game
@@ -949,6 +987,11 @@ function updateUIForAdmin() {
     statusDot.classList.add('online');
     statusText.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode';
     adminStatus.title = 'Admin mode active - Full access granted';
+    
+    // Update admin status untuk semua game cards
+    setTimeout(() => {
+        refreshAdminButtons();
+    }, 100);
 }
 
 // Update UI for Guest
@@ -965,6 +1008,11 @@ function updateUIForGuest() {
     statusDot.classList.remove('online');
     statusText.innerHTML = '<i class="fas fa-user"></i> Guest Mode';
     adminStatus.title = 'Guest mode - View only access';
+    
+    // Update admin status untuk semua game cards
+    setTimeout(() => {
+        refreshAdminButtons();
+    }, 100);
 }
 
 // Update Counters
@@ -1560,5 +1608,20 @@ style.textContent = `
     .game-category.strategy { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
     .game-category.arcade { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
     .game-category.multiplayer { background: rgba(6, 182, 212, 0.1); color: #06b6d4; }
+    
+    /* Perbaikan untuk game-actions */
+    .game-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .game-card:hover .game-actions {
+        opacity: 1;
+        transform: translateY(0);
+    }
 `;
 document.head.appendChild(style);
